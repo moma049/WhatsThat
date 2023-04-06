@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import Home from './Screens/HomePage';
 import LoginForm from './Screens/LoginForm';
 import SignUp from './Screens/SignUp';
-
+import MainAppNav from './MainAppNav';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -15,9 +15,9 @@ export default class App extends Component {
   render() {
     return (
       
-      <NavigationContainer> 
-        
-        <stack.Navigator>
+     <NavigationContainer> 
+        <MainAppNav/>
+      {/*  <stack.Navigator>
          <stack.Screen
           name='Home'
           component={Home}
@@ -31,7 +31,7 @@ export default class App extends Component {
           component={LoginForm}
           /> 
         </stack.Navigator>
-    
+        */}
 
       </NavigationContainer>
 
