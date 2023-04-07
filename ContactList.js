@@ -11,6 +11,7 @@ export default class ContactList extends Component {
     
     message: "hello",
     url: "http://127.0.0.1:3333/api/1.0.0/user/",
+    data1: [],
    
   };
   this.fetchData = this.fetchData.bind(this)

@@ -1,5 +1,6 @@
-import { Text, View, TextInput} from 'react-native'
+import { Text, View, TextInput,Image,StyleSheet} from 'react-native'
 import React, { Component } from 'react'
+
 
 export default class Account extends Component {
   constructor(props){
@@ -47,7 +48,10 @@ fetchData = async () => {
 
   render() {
     return (
+
       <View>
+        <Image source={require('./assets/WhatsIcon.png')}
+        style={styles.logo} />
         <Text>ID: </Text>
         <TextInput  
         placeholder= "ID"
@@ -74,3 +78,12 @@ fetchData = async () => {
     )
   }
 }
+const styles = StyleSheet.create({
+  
+  logo:{
+  alignSelf:'center',
+   width: 100, 
+   height: 100,
+
+},
+})
