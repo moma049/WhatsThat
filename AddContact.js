@@ -8,6 +8,7 @@ export default class AddContact extends Component {
     constructor(props) {
     super(props);
   this.state = {
+    id: 8,
     data1: [],
     message: "hello",
     url: "http://127.0.0.1:3333/api/1.0.0/user/",
@@ -19,6 +20,19 @@ export default class AddContact extends Component {
     console.log(this.state.message)
     this.fetchData();
   }
+
+  onPressButton(user_id){
+    if (user_id == this.state.id) {
+      alert("Cannot add yourself as a contact")
+    }
+    else {
+      this.addContact(user_id)
+    }
+  }
+
+
+
+
   addContact(userid) {
   const url1 = this.state.url + userid + "/contact"
    return fetch(url1,{
@@ -29,27 +43,22 @@ export default class AddContact extends Component {
   },
   body: ''
   
-})
-.then((response) => {
-if(response.status === 200){
+  })
+  .then((response) => {
+  if(response.status === 200){
     return response.text()
-}else if(response.status === 400){
+  }else if(response.status === 400){
   throw 'Invalid email or password';
-}else{
+  }else{
   throw 'Something went wrong';
-}
-})
-.then(async(json)=> {
-    if(json == "Already a contact"){
-        console.log("yes")
-    }
-    else{
-        console.log("no")
-    }
+  }
+  } )
+  .then(async(json)=> {
+    console.log("ok")
 
-})
+  })
 
-}
+  }
 
 
 fetchData = async () => {
@@ -87,7 +96,7 @@ fetchData = async () => {
 
           <Text > {<b>ID: </b>}{item.user_id}{"\n"} {<b>Name:</b>} {item.given_name} {item.family_name} {"\n"} {<b>Email:</b>} {item.email}</Text> 
 
-          <TouchableOpacity style={styles.buttonContainer}  onPress={() => this.addContact(item.user_id)}><Text style={styles.button}>Add to Contacts </Text></TouchableOpacity>
+          <TouchableOpacity style={styles.buttonContainer}  onPress={() => this.onPressButton(item.user_id)}><Text style={styles.button}>Add to Contacts </Text></TouchableOpacity>
           
           
           

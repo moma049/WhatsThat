@@ -6,7 +6,7 @@ import LoginForm from './Screens/LoginForm';
 import SignUp from './Screens/SignUp';
 import MainAppNav from './MainAppNav';
 import Contacts from './Contacts';
-
+import CameraTakePicture from './camera-takephoto';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -19,7 +19,8 @@ export default class App extends Component {
     return (
       
      <NavigationContainer> 
-        <MainAppNav/>
+      
+         <MainAppNav/> 
       {/*  <stack.Navigator>
          <stack.Screen
           name='Home'

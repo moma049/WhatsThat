@@ -7,7 +7,10 @@ import chat from './Chat';
 import Account from './Account';
 import Search from './Search';
 import ContactList from './ContactList';
+import AccountNav from './AccountNav';
+import ChatDraw from './ChatDraw';
 import { NavigationContainer } from '@react-navigation/native';
+import ChatStack from './ChatStack';
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
@@ -17,9 +20,9 @@ export default class MainAppNav extends Component {
     
       <Tab.Navigator>
         <Tab.Screen name = "Contacts" component={Contacts}/>
-        <Tab.Screen name = "Chat" component={chat}/>
+        <Tab.Screen name = "ChatStack" component={ChatStack}/>
         <Tab.Screen name = "Search" component={Search}/>
-        <Tab.Screen name='Account' component={Account}/>
+        <Tab.Screen name='AccountNav' component={AccountNav}/>
       </Tab.Navigator>
   
     )

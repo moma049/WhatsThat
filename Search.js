@@ -9,7 +9,6 @@ export default class Search extends Component {
 
     this.state = {
       
-      id: 8,
       url: "http://127.0.0.1:3333/api/1.0.0/search?q=",
       endurl:"&offset=0",
       filterURL: "&search_in=",

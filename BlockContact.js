@@ -88,10 +88,10 @@ fetchData = async () => {
           <TouchableOpacity style={styles.buttonContainer}  onPress={() => this.unblock(item.user_id)}><Text style={styles.button}>Unblock </Text></TouchableOpacity>
           
           
-          
-        
+       
           </View>
-        }/>
+          
+         }/>
 
       
       </View>
