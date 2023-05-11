@@ -22,6 +22,9 @@ export default class Account extends Component {
     this.fetchData();
    
   }
+  componentDidMount(){
+    this.getPicture();
+  }
 
 logout(){
   return fetch("http://127.0.0.1:3333/api/1.0.0/logout",{
@@ -80,6 +83,26 @@ changeName(){
   
 }
 getPicture(){
+  fetch("http://localhost:3333/api/1.0.0/user/" + this.state.id + "/photo", {
+            method: "GET",
+            headers: {
+                "X-Authorization": "a21764cda61efb6f144e9b29f4a89310"
+            }
+        })
+        .then((res) => {
+            return res.blob()
+        })
+        .then((resBlob) => {
+            let data = URL.createObjectURL(resBlob);
+
+            this.setState({
+                photo: data,
+                isLoading: false
+            })
+        })
+        .catch((err) => {
+            console.log(err)
+        })
   
 }
 
@@ -96,9 +119,9 @@ getPicture(){
     return (
 
       <View>
-        <Image source={require('./assets/WhatsIcon.png')}
+        <Image source={{ uri: this.state.photo}}
         style={styles.logo} />
-        <Text style={styles.text} ><b>ID:</b> </Text>
+        <Text style={styles.text} ><b>ID:</b> {this.state.id} </Text>
         
     
         <Text style={styles.text}><b>First Name: </b> {this.state.First_name}</Text>
@@ -155,6 +178,7 @@ const styles = StyleSheet.create({
   
   logo:{
   alignSelf:'center',
+   marginTop: 12,
    width: 100, 
    height: 100,
 

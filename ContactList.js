@@ -20,6 +20,16 @@ export default class ContactList extends Component {
     console.log(this.state.message)
     this.fetchData();
   }
+  componentDidMount = () => {
+    this.myTime = setInterval(()=>{
+      this.fetchData();
+      console.log("Hi")
+    }, 1000)
+
+  }
+  componentWillUnmount = () =>{
+    clearInterval(this.myTime);
+  }
  
  removeContact(userid) {
   const url1 = this.state.url + userid + "/contact"
