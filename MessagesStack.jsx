@@ -1,11 +1,12 @@
 import { Text, View } from 'react-native'
 import React, { Component } from 'react'
 import { createStackNavigator } from '@react-navigation/stack';
-import ChatDetails from './ChatDetails';
-import AddUser from './AddUser';
-import messages1 from './messages1'
-import messages from './messages'
-import DetailStack from './DetailsStack'
+
+import addUser from './AddUser';
+import individualMessage from './IndividualMessage'
+import Messages from './Messages'
+import detailStack from './DetailsStack'
+import editStack from './EditStack'
 
 
 
@@ -17,16 +18,16 @@ export default class ChatStack extends Component {
      <stack.Navigator>
         <stack.Screen  
         name='messages'
-        component={messages}/>
+        component={Messages}/>
         <stack.Screen  
         name='options'
-        component={messages1}/>
+        component={individualMessage}/>
         <stack.Screen  
         name='DetailsStack'
-        component={DetailStack}/>
+        component={detailStack}/>
         <stack.Screen  
         name='AddUser'
-        component={AddUser}/>
+        component={addUser}/>
      </stack.Navigator>
     )
   }

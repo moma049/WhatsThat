@@ -8,27 +8,39 @@ export default class Chat extends Component {
   constructor(props) {
     super(props);
   this.state = {
-    name: '',
-    url: "http://127.0.0.1:3333/api/1.0.0/chat",
-    data1: [],
-    chatid: null
+    Name: '',
+    Url: "http://127.0.0.1:3333/api/1.0.0/chat",
+    Data1: [],
+    chatId: null
   };
 
   }  
   componentWillMount(){
-    
     this.fetchData();
   }
-  NewChat(){
+  componentDidMount = () => {
+    this.myTime = setInterval(()=>{
+      this.fetchData();
+      
+    }, 1000)
+  }
+  
+  componentWillUnmount = () =>{
+    clearInterval(this.myTime);
+  }
+  
+  NewChat = async()=>{
+    const sesh_token = await AsyncStorage.getItem('@session_token')
+    
     let to_send = {
-      name: this.state.name,
+      name: this.state.Name,
       };
-      console.log(to_send)
+      
       return fetch("http://127.0.0.1:3333/api/1.0.0/chat",{
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310'
+            'X-Authorization': sesh_token
           },
           body: JSON.stringify(to_send)
       })
@@ -42,20 +54,21 @@ export default class Chat extends Component {
       }
       })
       .then(async (json) => {
-        console.log(json);
-        await AsyncStorage.setItem('chat_id', json.chat_id);
+      
         this.fetchData();
         this.render()
     })
     }
   
-  fetchData() {
-    const url1 = this.state.url 
-     return fetch(url1,{
+  fetchData = async()=> {
+    const sesh_token = await AsyncStorage.getItem('@session_token')
+  
+    const Url1 = this.state.Url 
+     return fetch(Url1,{
     method: 'GET',
     headers: {
         
-        'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310'
+        'X-Authorization': sesh_token
     }
     
   })
@@ -68,8 +81,8 @@ export default class Chat extends Component {
     throw 'Something went wrong';
   }
   }) .then(async(json) => {
-    console.log(json),
-    this.setState({data1: json})
+   
+    this.setState({Data1: json})
 })
   
   }
@@ -78,23 +91,23 @@ export default class Chat extends Component {
     return (
    
       <View>
-        <TextInput placeholder= "chat name"
-        onChangeText={(name) => this.setState({name})}
-        value= {this.state.name}
+        <TextInput placeholder= "Enter Chat Name Here"
+        onChangeText={(Name) => this.setState({Name})}
+        value= {this.state.Name}
         />
         <TouchableOpacity  style={styles.buttonContainer}  onPress={() => this.NewChat()}>
-        <Text style={styles.button}>
+        <Text style={styles.Button}>
                 Create New Chat 
             </Text>
         </TouchableOpacity>
 
-          <FlatList data ={this.state.data1} 
+          <FlatList data ={this.state.Data1} 
         keyExtractor={item =>item.chat_id }
         renderItem={({item})=>
         <TouchableOpacity onPress={() => this.props.navigation.navigate('MessageStack',{screen : 'messages', params: {item}})}>
-        <View style={styles.text1}>
+        <View style={styles.Text1}>
 
-          <Text > {<b>ID: </b>}{item.chat_id}{"\n"} {<b>Name:</b>} {item.name} </Text> 
+          <Text > {<b>ID: </b>}{item.chat_id}{"\n"} {<b>Name:</b>} {item.name}{"\n"} {<b> Last Message:</b>} {item.last_message.message} </Text> 
            
         
           </View>
@@ -110,16 +123,15 @@ export default class Chat extends Component {
   }
 }
 const styles = StyleSheet.create({
-  text1:{
+  Text1:{
     textAlign:'center',
-   // backgroundColor: 'blue',
     borderBottomWidth: 5
   },
   buttonContainer: {
     backgroundColor: 'red',
     paddingVertical: 15,
    },
-   button:{
+   Button:{
     textAlign: 'center',
     fontWeight: 500,
     color: 'black'

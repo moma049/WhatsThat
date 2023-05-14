@@ -1,123 +1,125 @@
 import { Text, View,FlatList,TextInput,StyleSheet,TouchableOpacity } from 'react-native'
 import React, { Component } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-//import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default class ContactList extends Component {
     constructor(props) {
     super(props);
   this.state = {
     
-    message: "hello",
-    url: "http://127.0.0.1:3333/api/1.0.0/user/",
-    data1: [],
-   
+    Message: "hello",
+    Url: "http://127.0.0.1:3333/api/1.0.0/user/",
+    Data1: [],
+    token: ''
   };
   this.fetchData = this.fetchData.bind(this)
-    }
+  }
+
+
   componentWillMount(){
-    console.log(this.state.message)
+   
     this.fetchData();
   }
+
   componentDidMount = () => {
+    
     this.myTime = setInterval(()=>{
       this.fetchData();
-      console.log("Hi")
+      
     }, 1000)
-
   }
+
   componentWillUnmount = () =>{
     clearInterval(this.myTime);
   }
  
- removeContact(userid) {
-  const url1 = this.state.url + userid + "/contact"
-   return fetch(url1,{
+ removeContact= async(userId)=> {
+  const sesh_token = await AsyncStorage.getItem('@session_token')
+
+  const Url1 = this.state.Url + userId + "/contact"
+   return fetch(Url1,{
   method: 'DELETE',
   headers: {
-      //'Content-Type': 'application/json',
-      'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310'
+      'X-Authorization': sesh_token
   }
-  
 })
 .then((response) => {
 if(response.status === 200){
   this.fetchData()
   this.render()
-}else if(response.status === 400){
-  throw 'Invalid email or password';
 }else{
-  throw 'Something went wrong';
+  alert("Contact could not be removed")
 }
 })
-//console.log(userid)
+
 }
 
-blockContact(userid){
-  const url1 = this.state.url + userid + "/block"
-  return fetch(url1,{
+blockContact = async(Userid)=>{
+  const sesh_token = await AsyncStorage.getItem('@session_token')
+ 
+
+  const Url1 = this.state.Url + Userid + "/block"
+  return fetch(Url1,{
  method: 'POST',
  headers: {
      
-     'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310'
+     'X-Authorization': sesh_token
  },
  body: ''
  
 })
 .then((response) => {
 if(response.status === 200){
-   return response.text()
-}else if(response.status === 400){
- throw 'Invalid email or password';
+  alert("User Blocked")
 }else{
- throw 'Something went wrong';
+ alert("User could not be blocked")
 }
 })
 .then(async(json)=> {
-   console.log("user blocked")
+  
 })
 }
 
 
 fetchData = async () => {
+  
+  const sesh_token = await AsyncStorage.getItem('@session_token')
  
   return fetch("http://127.0.0.1:3333/api/1.0.0/contacts",{
       method: 'GET',
       headers: {
           
-          'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310'
+          'X-Authorization': sesh_token
       }
       
   })
   .then((response) => {
     if(response.status === 200){
       return response.json()
-    }else if(response.status === 400){
-      throw 'Invalid email or password';
     }else{
-      throw 'Something went wrong';
+      alert("Details could not be retrieved")
   }
   })
   .then(async(json) => {
-    console.log(json[0]),
-
-    this.setState({data1: json})
+    this.setState({Data1: json}) 
+  
 })
 }
   render() {
+    
     return (
-      <View style={styles.main}>
-        
-        <FlatList data ={this.state.data1} 
+      <View style={styles.Main}>
+       
+        <FlatList data ={this.state.Data1} 
         keyExtractor={item =>item.user_id }
         renderItem={({item})=>
-        <View style={styles.text1}>
+        <View style={styles.Text1}>
 
           <Text > {<b>ID: </b>}{item.user_id}{"\n"} {<b>Name:</b>} {item.first_name} {item.last_name} {"\n"} {<b>Email:</b>} {item.email}</Text> 
-          <View style={styles.managebuttons} > 
-          <TouchableOpacity style={styles.buttonContainer}  onPress={() => this.removeContact(item.user_id)}><Text style={styles.button}>Remove Contact </Text></TouchableOpacity>
-          <TouchableOpacity style={styles.buttonContainer}  onPress={() => this.blockContact(item.user_id)}><Text style={styles.button}>Block Contact  </Text></TouchableOpacity>
+          <View style={styles.manageButtons} > 
+          <TouchableOpacity style={styles.buttonContainer}  onPress={() => this.removeContact(item.user_id)}><Text style={styles.Button}>Remove Contact </Text></TouchableOpacity>
+          <TouchableOpacity style={styles.buttonContainer}  onPress={() => this.blockContact(item.user_id)}><Text style={styles.Button}>Block Contact  </Text></TouchableOpacity>
           </View>
           
           
@@ -131,10 +133,10 @@ fetchData = async () => {
   }
 }
 const styles = StyleSheet.create({
-    main:{
+    Main:{
       flex:1
     },
-    input:{
+    Input:{
         backgroundColor: 'blue', 
         //position:'absolute',
         bottom:0,
@@ -142,13 +144,13 @@ const styles = StyleSheet.create({
         width:50,
         alignSelf: 'center'
     },
-    button:{
+    Button:{
       //position: 'relative',
         bottom:0,
         textAlign: 'center',
         
     },
-    text1:{
+    Text1:{
       textAlign:'center',
      // backgroundColor: 'blue',
       borderBottomWidth: 5
@@ -164,7 +166,7 @@ const styles = StyleSheet.create({
       borderRadius: 15,
       marginLeft: 5
      },
-     managebuttons:{
+     manageButtons:{
       flexDirection: 'row',
       alignSelf: 'center'
      }

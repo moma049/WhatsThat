@@ -1,55 +1,58 @@
 import { Text, View,FlatList,TextInput,StyleSheet,TouchableOpacity } from 'react-native'
 import React, { Component } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default class AddUser extends Component {
     constructor(props) {
         super(props);
       this.state = {
-        data1: [],
-        message: "hello",
-        url: "http://127.0.0.1:3333/api/1.0.0/chat/",
-        endofurl: "/contact",
+        Data1: [],
+        Url: "http://127.0.0.1:3333/api/1.0.0/chat/",
+        endOfUrl: "/contact",
         chat_id: this.props.route.params.chat_id
       };
       this.fetchData = this.fetchData.bind(this)
     }
     componentWillMount(){
-        console.log(this.state.message)
         this.fetchData();
       }
     
-      addUser(userid) {
-      const url1 = this.state.url + this.state.chat_id+ "/user/"+ userid
-       return fetch(url1,{
+      addUser = async(userId)=> {
+        const sesh_token = await AsyncStorage.getItem('@session_token')
+        console.log(sesh_token)
+      const Url1 = this.state.Url + this.state.chat_id+ "/user/"+ userId
+       return fetch(Url1,{
       method: 'POST',
       headers: {
           
-          'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310'
+          'X-Authorization': sesh_token
       },
       body: ''
       
     })
     .then((response) => {
     if(response.status === 200){
-        return response.text()
+      alert("User successfully added ");
     }else if(response.status === 400){
-      alert("User Already Added")
+      alert("User Already Added");
     }else{
-      throw 'Something went wrong';
+      alert("Could not add User ");
     }
     })
     .then(async(json)=> {
-     
+    
     })
     
     }
     fetchData = async () => {
+      const sesh_token = await AsyncStorage.getItem('@session_token')
+ 
  
         return fetch("http://127.0.0.1:3333/api/1.0.0/search",{
             method: 'GET',
             headers: {
                 
-                'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310'
+                'X-Authorization': sesh_token
             }
             
         })
@@ -64,21 +67,21 @@ export default class AddUser extends Component {
         })
         .then(async(json) => {
           
-          this.setState({data1: json})
+          this.setState({Data1: json})
       })
       }
   render() {
     return (
-        <View style={styles.main}>
+        <View style={styles.Main}>
         
-        <FlatList data ={this.state.data1} 
+        <FlatList data ={this.state.Data1} 
         keyExtractor={item =>item.user_id }
         renderItem={({item})=>
-        <View style={styles.text1}>
+        <View style={styles.Text1}>
 
           <Text > {<b>ID: </b>}{item.user_id}{"\n"} {<b>Name:</b>} {item.given_name} {item.family_name} {"\n"} {<b>Email:</b>} {item.email}</Text> 
 
-          <TouchableOpacity style={styles.buttonContainer}  onPress={() => this.addUser(item.user_id)}><Text style={styles.button}>Add User </Text></TouchableOpacity>
+          <TouchableOpacity style={styles.buttonContainer}  onPress={() => this.addUser(item.user_id)}><Text style={styles.Button}>Add User </Text></TouchableOpacity>
           
         
           </View>
@@ -90,25 +93,15 @@ export default class AddUser extends Component {
   }
 }
 const styles = StyleSheet.create({
-    main:{
+    Main:{
       flex:1
     },
-    input:{
-        backgroundColor: 'blue', 
-        //position:'absolute',
-        bottom:0,
-        Height:40,
-        width:50,
-        alignSelf: 'center'
-    },
-    button:{
-      //position: 'relative',
+    Button:{
         bottom:0,
         alignSelf: 'center'
     },
-    text1:{
+    Text1:{
       textAlign:'center',
-     // backgroundColor: 'blue',
       borderBottomWidth: 5
     },
     buttonContainer: {

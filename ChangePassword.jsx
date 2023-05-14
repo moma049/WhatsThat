@@ -1,6 +1,7 @@
 import { Text, View,StyleSheet,TextInput,TouchableOpacity} from 'react-native'
 import React, { Component } from 'react'
 import * as EmailValidator from 'email-validator';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default class ChangePassword extends Component {
@@ -8,52 +9,48 @@ export default class ChangePassword extends Component {
     super(props)
 
     this.state = {
-      
       data:  this.props.route.params.data,
-      url: "http://127.0.0.1:3333/api/1.0.0/user/",
-      email: "moon@hotmail.com",
-      error: "", 
-      submitted: false
+      Url: "http://127.0.0.1:3333/api/1.0.0/user/",
+      Error: "", 
+      Submitted: false,
+      Password: ''
     }
   }
   _onPressButton(){ 
 
-    this.setState({submitted: true})
-    this.setState({error: ""})
+    this.setState({Submitted: true})
+    this.setState({Error: ""})
 
-    if(!( this.state.password)){
-        this.setState({error: "Must enter  password"})
+    if(!( this.state.Password)){
+        this.setState({Error: "Must enter  password"})
         alert("Must enter password")
         return;
     }
 
   
     const PASSWORD_REGEX = new RegExp("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$")
-    if(!PASSWORD_REGEX.test(this.state.password)){
+    if(!PASSWORD_REGEX.test(this.state.Password)){
         this.setState({error: "Password isn't strong enough (One upper, one lower, one special, one number, at least 8 characters long)"})
         alert("Password isn't strong enough (One upper, one lower, one special, one number, at least 8 characters long)")
         return;
     }
-
-
-    console.log("Button clicked: "  + this.state.password)
-    console.log("Validated and ready to send to the API");
     this.changePassword();
    
 }
   changePassword = async () => {
+    const sesh_token = await AsyncStorage.getItem('@session_token')
+    const Id =  await AsyncStorage.getItem('@session_id')
     let to_send = {
       first_name:this.state.data.first_name,
       last_name:this.state.data.last_name,
       email: this.state.data.email,
-      password: this.state.password
+      password: this.state.Password
       };
-      const url1 = this.state.url + this.state.data.id
-      console.log(to_send)
+      const url1 = this.state.Url + Id
     return fetch(url1,{
       method: 'PATCH',
       headers: {
-        'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310',
+        'X-Authorization': sesh_token,
         'Content-Type': 'application/json'
         
       },
@@ -62,34 +59,33 @@ export default class ChangePassword extends Component {
     })
     .then((response) => {
       if(response.status === 200){
-        return response
-      }else if(response.status === 400){
-        throw 'Bad Request';
+        alert("Password Changed")
       }else{
-        throw 'Something went wrong';
+        alert("Unable to change Password");
     }
     })
     .then(async(json) => {
-      console.log(json)
+      
+      this.props.navigation.navigate('Account')
       
   })
   }
   render() {
     return (
-      <View style={styles.main}>
-        <View style={styles.container1}>
-        <Text><b>ChangeEmail:</b> </Text>
-        <TextInput style={styles.input} 
+      <View style={styles.Main}>
+        <View style={styles.Container1}>
+        <Text><b>Change Password:</b> </Text>
+        <TextInput style={styles.Input} 
           placeholder="Enter New Password" 
-          onChangeText={(email) => this.setState({password})}
-        value={this.state.password}
+          onChangeText={(Password) => this.setState({Password})}
+        value={this.state.Password}
            >
         </TextInput>
         </View>
         <TouchableOpacity style={styles.buttonContainer} 
         onPress={() => this._onPressButton()}>
-            <Text style={styles.button}>
-                SEARCH
+            <Text style={styles.Button}>
+                CONFIRM
             </Text>
         </TouchableOpacity>
         
@@ -98,17 +94,15 @@ export default class ChangePassword extends Component {
   }
 }
 const styles = StyleSheet.create({
-  main:{
-    flex:1
-  },
-  container1 : {
-    marginTop:50,
-    alignSelf:'center',
-    flexDirection: 'row',
-   
-
-  },
-input: {
+Main:{
+  flex:1
+},
+Container1 : {
+  marginTop:50,
+  alignSelf:'center',
+  flexDirection: 'row',
+},
+Input: {
   borderWidth:2,
   Height:30,
   width:150,
@@ -123,8 +117,8 @@ buttonContainer: {
   marginTop: 5,
   borderRadius: 15,
   marginLeft: 5
- },button:{
-  //position: 'relative',
+ },
+ Button:{
     bottom:0,
     textAlign: 'center',
     

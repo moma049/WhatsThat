@@ -1,6 +1,6 @@
-import { Text, View, StyleSheet,TouchableOpacity,TextInput, Alert } from 'react-native'
+import { Text, View, StyleSheet,TouchableOpacity,TextInput, Alert,Image } from 'react-native'
 import React, { Component } from 'react'
-import Logo from '../logo';
+import appLogo from '../AppLogo';
 import * as EmailValidator from 'email-validator';
 
 export default class SignUp extends Component {
@@ -22,12 +22,22 @@ export default class SignUp extends Component {
     _onPressButton(){
         this.setState({submitted: true})
         this.setState({error: ""})
-
-        if(!(this.state.email && this.state.password)){
+         if(!( this.state.first_name && this.state.last_name )){
+          this.setState({error: "Must enter First and Last name"})
+          alert("Must enter First and Last name")
+          return;
+      }
+        if(!(this.state.email && this.state.password  )){
             this.setState({error: "Must enter email and password"})
             alert("Must enter email and password")
-            return;
+           return;
         }
+      
+         if(!( this.state.confirmPass )){
+         this.setState({error: "Must confirm password"})
+         alert("Must confirm password")
+          return;
+       }
 
         if(!EmailValidator.validate(this.state.email)){
             this.setState({error: "Must enter valid email"})
@@ -54,7 +64,7 @@ export default class SignUp extends Component {
         email: this.state.email,
         password: this.state.password
         };
-        console.log(to_send)
+       
         return fetch("http://127.0.0.1:3333/api/1.0.0/user",{
             method: 'POST',
             headers: {
@@ -62,20 +72,27 @@ export default class SignUp extends Component {
             },
             body: JSON.stringify(to_send)
         })
-        .then((response) => {
-            alert("Item Added");
+        .then(async (response) => {
+          if(response.status === 201){
+           alert("User added")
+           this.props.navigation.navigate('SignIn')
+          }else{
+            alert("Email already exists")
+        }
         })
-        console.log(to_send)
-        .catch((error) => {
-            console.log(error);
-        });
+        .then(async (json) => {
+           
+      })
         
       }
   render() {
     return (
     <View style={styles.container}>
-
-        <Logo/>
+       <Image
+        source={require('../assets/logo1.png')}
+        style={styles.logo}
+        />
+      
      <View style={styles.form}>
 
         <TextInput style={styles.input} 
@@ -133,6 +150,13 @@ const styles = StyleSheet.create({
     flex: 1,
     
     },
+    logo:{
+      marginTop:50,
+      width: 200, 
+      height: 150,
+      alignSelf: 'center',
+  
+  },
     input:{
      width:400,
      height: 40,

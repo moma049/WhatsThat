@@ -1,12 +1,12 @@
 import { Text, View,FlatList,TextInput,StyleSheet,TouchableOpacity } from 'react-native'
 import React, { Component } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default class messages1 extends Component{
   constructor(props) {
     super(props);
   this.state = {
     sendmsg: "",
-   // item: this.props.route.params.item.message_id,
     obj : this.props.route.params.obj,
     url: "http://127.0.0.1:3333/api/1.0.0/chat/"
   };
@@ -15,12 +15,14 @@ export default class messages1 extends Component{
 componentWillMount(){
  
   }
-deletemsg(){
+deletemsg = async()=>{
+  const sesh_token = await AsyncStorage.getItem('@session_token')
+
     const full_URL = this.state.url + this.state.obj.chat_id + "/message/" + this.state.obj.item.message_id
   return fetch( full_URL,{
     method: 'DELETE',
     headers: {
-      'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310',
+      'X-Authorization': sesh_token
       
       
     },
@@ -41,10 +43,26 @@ deletemsg(){
     this.props.navigation.navigate('messages')
 })
 }
-editmsg(){
-  
+_onPressEdit(){ 
+
+  this.setState({submitted: true})
+  this.setState({error: ""})
+
+  if(!(this.state.sendmsg)){
+      this.setState({error: "Enter New message"})
+      alert("Enter New Message")
+      return;
+  }
+
+  this.editmsg();
+ 
+}
+
+editmsg = async()=>{
+  const sesh_token = await AsyncStorage.getItem('@session_token')
+ 
   let to_send = {
-    first_name:this.state.sendmsg,
+    message:this.state.sendmsg,
    
     };
     const full_URL = this.state.url + this.state.obj.chat_id + "/message/" + this.state.obj.item.message_id
@@ -52,7 +70,7 @@ editmsg(){
   return fetch(full_URL,{
     method: 'PATCH',
     headers: {
-      'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310',
+      'X-Authorization': sesh_token,
       'Content-Type': 'application/json'
       
     },
@@ -61,15 +79,14 @@ editmsg(){
   })
   .then((response) => {
     if(response.status === 200){
-      return response
-    }else if(response.status === 400){
-      throw 'Bad Request';
+      alert("Message changed")
+      this.props.navigation.navigate('messages')
     }else{
-      throw 'Something went wrong';
+      alert('Message could not be Edited')
   }
   })
   .then(async(json) => {
-    console.log(json)
+    
     
 })
 }
@@ -96,7 +113,7 @@ test(){
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.buttonContainer} 
-        onPress={() => this.test()}>
+        onPress={() => this._onPressEdit()}>
             <Text style={styles.button}>
                 EDIT
             </Text>

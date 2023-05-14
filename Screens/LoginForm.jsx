@@ -54,6 +54,8 @@ export default class LoginForm extends Component {
    
 }
 login = async () => {
+  await AsyncStorage.setItem('@session_password', this.state.password);
+
   let to_send = {
   email: this.state.email,
   password: this.state.password
@@ -66,19 +68,24 @@ login = async () => {
       },
       body: JSON.stringify(to_send)
   })
-  .then((response) => {
+  .then(async (response) => {
     if(response.status === 200){
-      return response.json()
+     return response.json()
     }else if(response.status === 400){
-      throw 'Invalid email or password';
+      alert('Invalid email or password');
+      return
     }else{
-      throw 'Something went wrong';
+      alert("cannot Login")
   }
   })
   .then(async (json) => {
-    console.log(json);
-    await AsyncStorage.setItem('@session_token', json.token);
-    this.props.navigation.navigate('Contacts')
+     
+      await AsyncStorage.setItem('@session_token', json.token);
+      await AsyncStorage.setItem('@session_id', json.id);
+      const value = await AsyncStorage.getItem('@session_token');
+      console.log(value)
+      
+    this.props.navigation.navigate('MainApp')
 })
 }
 
@@ -88,7 +95,7 @@ login = async () => {
       
       <KeyboardAvoidingView behavior='padding' style={styles.container1}>
          <Image
-        source={require('../assets/WhatsIcon.png')}
+        source={require('../assets/logo1.png')}
         style={styles.logo}
         />
         <TextInput style={styles.input} 
@@ -101,11 +108,13 @@ login = async () => {
         <TextInput style={styles.input} 
           placeholder="Password" 
           onChangeText={(password) => this.setState({password})}
-          value={this.state.password} >
+          value={this.state.password} 
+        >
         </TextInput>
 
         <TouchableOpacity style={styles.buttonContainer} 
-        onPress={() => this._onPressButton()}>
+        onPress={() => this._onPressButton()}
+        >
             <Text style={styles.button}>
                 LOGIN
             </Text>
@@ -121,13 +130,15 @@ login = async () => {
 const styles = StyleSheet.create({
    container1 : {
     padding:20,
-    
-
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#34eb8c',
    },
    logo:{
-       
-    width: 100, 
-    height: 100,
+    width: 200, 
+    height: 150,
+    marginBottom: 20,
+    alignSelf: 'center',
 
 },
    input:{

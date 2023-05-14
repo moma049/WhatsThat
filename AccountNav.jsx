@@ -3,10 +3,10 @@ import React, { Component } from 'react'
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Account from './Account';
-import ChangeName from './ChangeName';
-import ChangeEmail from './ChangeEmail';
-import ChangePassword from './ChangePassword';
-import Camera1 from './camera-takephoto'
+import changeName from './ChangeName';
+import changeEmail from './ChangeEmail';
+import changePassword from './ChangePassword';
+import camera1 from './CameraTakePhoto'
 
 const stack = createStackNavigator();
 
@@ -20,16 +20,16 @@ export default class AccountNav extends Component {
                 component={Account}/> 
                 <stack.Screen 
                 name='Email'
-                component={ChangeEmail}/>
+                component={changeEmail}/>
                  <stack.Screen 
                 name='Password'
-                component={ChangePassword}/>
+                component={changePassword}/>
                  <stack.Screen 
                 name='Name'
-                component={ChangeName}/>
+                component={changeName}/>
                 <stack.Screen 
                 name='Camera'
-                component={Camera1}/>
+                component={camera1}/>
                 
             </stack.Navigator>
        

@@ -2,6 +2,7 @@ import { Camera, CameraType, onCameraReady, CameraPictureOptions } from 'expo-ca
 import { useState,useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CameraTakePicture() {
     const [hasCameraPermission, setHasCameraPermission] = useState();
@@ -35,19 +36,18 @@ export default function CameraTakePicture() {
     }
 
     async function sendToServer(data){
-        console.log("HERE", data.uri)
-
-        let id = 8;
-        let token = "token here";
+        const sesh_token = await AsyncStorage.getItem('@session_token')
+        const Id = await AsyncStorage.getItem('@session_id');
+        
 
         let res = await fetch(data.base64);
         let blob = await res.blob()
 
-        return fetch("http://127.0.0.1:3333/api/1.0.0/user/" + id + "/photo",{
+        return fetch("http://127.0.0.1:3333/api/1.0.0/user/" + Id + "/photo",{
     method: 'POST',
     headers: {
         "Content-Type": "image/png",
-       'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310'
+       'X-Authorization': sesh_token
     },
     body: blob
     

@@ -1,12 +1,15 @@
 import { Text, View,StyleSheet,Image, TouchableOpacity} from 'react-native'
 import React, { Component } from 'react'
-import Logo from '../logo'
+import appLogo from '../AppLogo'
 
 export default class HomePage extends Component {
   render() {
     return (
       <View style = {styles.container}>
-        <Logo/>
+         <Image
+        source={require('../assets/logo1.png')}
+        style={styles.logo}
+        />
         <TouchableOpacity style={styles.buttonContainer} 
         onPress={() => this.props.navigation.navigate('SignIn')}>
             <Text style={styles.button}>
@@ -32,6 +35,12 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#34eb8c',
     },
+    logo:{
+      width: 200, 
+      height: 150,
+      alignSelf: 'center',
+      marginTop:50
+  },
     buttonContainer: {
         backgroundColor: 'red',
         paddingVertical: 10,

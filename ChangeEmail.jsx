@@ -7,29 +7,26 @@ export default class ChangeEmail extends Component {
     super(props)
 
     this.state = {
-      
-   
-      url: "http://127.0.0.1:3333/api/1.0.0/user/",
+      Url: "http://127.0.0.1:3333/api/1.0.0/user/",
       data:  this.props.route.params.data,
-      last_name: "Seed",
-      password:"Tineo1999$",
-      email: "",
-      error: "",
-      submitted: false
+      Password:"Tineo1999$",
+      Email: "",
+      Error: "",
+      Submitted: false,
     }
   }
   _onPressButton(){ 
 
-    this.setState({submitted: true})
-    this.setState({error: ""})
+    this.setState({Submitted: true})
+    this.setState({Error: ""})
 
-    if(!(this.state.email )){
-        this.setState({error: "Must enter email"})
+    if(!(this.state.Email )){
+        this.setState({Error: "Must enter email"})
         alert("Must enter email ")
         return;
     }
 
-    if(!EmailValidator.validate(this.state.email)){
+    if(!EmailValidator.validate(this.state.Email)){
         this.setState({error: "Must enter valid email"})
         alert("Must enter valid email")
         return;
@@ -37,25 +34,27 @@ export default class ChangeEmail extends Component {
 
   
 
-    console.log("Button clicked: " + this.state.email )
+    console.log("Button clicked: " + this.state.Email )
     console.log("Validated and ready to send to the API");
     this.changeEmail();
    
 }
   
   changeEmail = async () => {
+    const sesh_token = await AsyncStorage.getItem('@session_token')
+    const Id = await AsyncStorage.getItem('@session_id')
     let to_send = {
       first_name:this.state.data.first_name,
       last_name:this.state.data.last_name,
-      email: this.state.email,
-      password: this.state.password
+      email: this.state.Email,
+      password: this.state.Password
       };
-      const url1 = this.state.url + this.state.id
+      const url1 = this.state.Url + Id
       console.log(to_send)
     return fetch(url1,{
       method: 'PATCH',
       headers: {
-        'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310',
+        'X-Authorization': sesh_token,
         'Content-Type': 'application/json'
         
       },
@@ -64,34 +63,34 @@ export default class ChangeEmail extends Component {
     })
     .then((response) => {
       if(response.status === 200){
-        return response
+        alert('Email address successfully changed');
       }else if(response.status === 400){
-        throw 'Bad Request';
+        alert ('Email address already in use');
       }else{
-        throw 'Something went wrong';
+        alert('Email address could not be changed');
     }
     })
     .then(async(json) => {
-      console.log(json)
+      this.props.navigation.navigate('Account')
       
   })
   }
   render() {
     console.log(this.state.data.last_name)
     return (
-      <View style={styles.main}>
-        <View style={styles.container1}>
+      <View style={styles.Main}>
+        <View style={styles.Container1}>
         <Text><b>New Email:</b> </Text>
-        <TextInput style={styles.input} 
+        <TextInput style={styles.Input} 
           placeholder="Enter New Email" 
-          onChangeText={(email) => this.setState({email})}
-        value={this.state.email}
+          onChangeText={(Email) => this.setState({Email})}
+        value={this.state.Email}
            >
         </TextInput>
         </View>
         <TouchableOpacity style={styles.buttonContainer} 
         onPress={() => this._onPressButton()}>
-            <Text style={styles.button}>
+            <Text style={styles.Button}>
                 CONFIRM
             </Text>
         </TouchableOpacity>
@@ -101,17 +100,15 @@ export default class ChangeEmail extends Component {
   }
 }
 const styles = StyleSheet.create({
-  main:{
-    flex:1
-  },
-  container1 : {
-    marginTop:50,
-    alignSelf:'center',
-    flexDirection: 'row',
-   
-
-  },
-input: {
+Main:{
+  flex:1
+},
+Container1 : {
+  marginTop:50,
+  alignSelf:'center',
+  flexDirection: 'row',
+},
+Input: {
   borderWidth:2,
   Height:30,
   width:150,
@@ -126,9 +123,9 @@ buttonContainer: {
   marginTop: 5,
   borderRadius: 15,
   marginLeft: 5
- },button:{
-  //position: 'relative',
-    bottom:0,
-    textAlign: 'center',
+},
+Button:{
+  bottom:0,
+  textAlign: 'center',
     
 }})

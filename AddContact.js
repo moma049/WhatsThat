@@ -1,45 +1,45 @@
 import { Text, View,FlatList,TextInput,StyleSheet,TouchableOpacity } from 'react-native'
 import React, { Component } from 'react'
-import ContactList from './ContactList';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-//import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default class AddContact extends Component {
     constructor(props) {
     super(props);
   this.state = {
-    id: 8,
-    data1: [],
-    message: "hello",
-    url: "http://127.0.0.1:3333/api/1.0.0/user/",
-    endofurl: "/contact"
+    Data1: [],
+    Message: "hello",
+    Url: "http://127.0.0.1:3333/api/1.0.0/user/",
+    endOfUrl: "/contact"
   };
   this.fetchData = this.fetchData.bind(this)
     }
   componentWillMount(){
-    console.log(this.state.message)
+    console.log(this.state.Message)
     this.fetchData();
   }
 
-  onPressButton(user_id){
-    if (user_id == this.state.id) {
+  onPressButton(userId){
+    const Id = AsyncStorage.getItem('@session_id')
+    if (userId == Id) {
       alert("Cannot add yourself as a contact")
     }
     else {
-      this.addContact(user_id)
+      this.addContact(userId)
     }
   }
 
+  addContact = async(userId)=> {
+    const sesh_token = await AsyncStorage.getItem('@session_token')
+    
 
-
-
-  addContact(userid) {
-  const url1 = this.state.url + userid + "/contact"
-   return fetch(url1,{
+  const Url1 = this.state.Url + userId + "/contact"
+   return fetch(Url1,{
   method: 'POST',
   headers: {
       
-      'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310'
+      'X-Authorization': sesh_token
   },
   body: ''
   
@@ -47,14 +47,17 @@ export default class AddContact extends Component {
   .then((response) => {
   if(response.status === 200){
     return response.text()
-  }else if(response.status === 400){
-  throw 'Invalid email or password';
   }else{
-  throw 'Something went wrong';
+  alert ('Please try again later');
   }
   } )
   .then(async(json)=> {
-    console.log("ok")
+    if(json == "Already a contact"){
+      alert("This user is already a contact")
+    }
+    else {
+      console.log("Contact added")
+    }
 
   })
 
@@ -62,12 +65,13 @@ export default class AddContact extends Component {
 
 
 fetchData = async () => {
+  const sesh_token = await AsyncStorage.getItem('@session_token')
  
   return fetch("http://127.0.0.1:3333/api/1.0.0/search",{
       method: 'GET',
       headers: {
           
-          'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310'
+          'X-Authorization': sesh_token
       }
       
   })
@@ -82,25 +86,22 @@ fetchData = async () => {
   })
   .then(async(json) => {
     
-    this.setState({data1: json})
+    this.setState({Data1: json})
 })
 }
-  render() {
+render() {
     return (
-      <View style={styles.main}>
+      <View style={styles.Main}>
         
-        <FlatList data ={this.state.data1} 
+        <FlatList data ={this.state.Data1} 
         keyExtractor={item =>item.user_id }
         renderItem={({item})=>
         <View style={styles.text1}>
 
-          <Text > {<b>ID: </b>}{item.user_id}{"\n"} {<b>Name:</b>} {item.given_name} {item.family_name} {"\n"} {<b>Email:</b>} {item.email}</Text> 
+          <Text > {<b>ID: </b>}{item.user_id}{"\n"} {<b>Name:</b>} {item.given_name} {item.family_name} {"\n"} {<b>Email:</b>} {item.email} </Text> 
 
-          <TouchableOpacity style={styles.buttonContainer}  onPress={() => this.onPressButton(item.user_id)}><Text style={styles.button}>Add to Contacts </Text></TouchableOpacity>
+          <TouchableOpacity style={styles.buttonContainer}  onPress={() => this.onPressButton(item.user_id)}><Text style={styles.Button}>Add to Contacts </Text> </TouchableOpacity>
           
-          
-          
-        
           </View>
         }/>
 
@@ -110,25 +111,22 @@ fetchData = async () => {
   }
 }
 const styles = StyleSheet.create({
-    main:{
+    Main:{
       flex:1
     },
-    input:{
+    Input:{
         backgroundColor: 'blue', 
-        //position:'absolute',
         bottom:0,
         Height:40,
         width:50,
         alignSelf: 'center'
     },
-    button:{
-      //position: 'relative',
+    Button:{
         bottom:0,
         alignSelf: 'center'
     },
     text1:{
       textAlign:'center',
-     // backgroundColor: 'blue',
       borderBottomWidth: 5
     },
     buttonContainer: {

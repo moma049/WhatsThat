@@ -1,18 +1,17 @@
 import { Text, View,StyleSheet,TextInput,TouchableOpacity} from 'react-native'
 import React, { Component } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default class ChangeName extends Component {
   constructor(props){
     super(props)
 
     this.state = {
-      
-     
-      url: "http://127.0.0.1:3333/api/1.0.0/user/",
+      Url: "http://127.0.0.1:3333/api/1.0.0/user/",
       data:  this.props.route.params.data,
-      First_name:  "",
-      last_name: "",
-      password:"Tineo1999$",
+      firstName:  "",
+      lastName: "",
+      Password:"Tineo1999$",
       
     }
   }
@@ -21,33 +20,31 @@ export default class ChangeName extends Component {
     this.setState({submitted: true})
     this.setState({error: ""})
 
-    if(!(this.state.First_name && this.state.last_name)){
+    if(!(this.state.firstName && this.state.lastName)){
         this.setState({error: "Must enter First and Last name"})
         alert("Must enter First and Last Name")
         return;
     }
 
-    
-
-    console.log("Button clicked: " + this.state.First_name + " " + this.state.last_name)
-    console.log("Validated and ready to send to the API");
     this.changeName();
    
 }
   
   changeName = async () => {
+    const sesh_token = await AsyncStorage.getItem('@session_token')
+    const Id = await AsyncStorage.getItem('@session_id')
     let to_send = {
-      first_name:this.state.First_name,
-      last_name:this.state.last_name,
+      first_name:this.state.firstName,
+      last_name:this.state.lastName,
       email: this.state.data.email,
-      password: this.state.password
+      password: this.state.Password
       };
-      const url1 = this.state.url + this.state.data.id
+      const Url1 = this.state.Url + Id
       console.log(to_send)
-    return fetch(url1,{
+    return fetch(Url1,{
       method: 'PATCH',
       headers: {
-        'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310',
+        'X-Authorization': sesh_token,
         'Content-Type': 'application/json'
         
       },
@@ -56,42 +53,41 @@ export default class ChangeName extends Component {
     })
     .then((response) => {
       if(response.status === 200){
-        return response
-      }else if(response.status === 400){
-        throw 'Bad Request';
-      }else{
-        throw 'Something went wrong';
+        alert("Name Changed");
+      }
+      else{
+        alert("Name could not be Changed");
     }
     })
     .then(async(json) => {
-      console.log(json)
+      this.props.navigation.navigate('Account');
       
   })
   }
   render() {
     return (
-      <View style={styles.main}>
-        <View style={styles.container1}>
+      <View style={styles.Main}>
+        <View style={styles.Container1}>
         <Text><b>First Name:</b> </Text>
-        <TextInput style={styles.input} 
+        <TextInput style={styles.Input} 
           placeholder="Enter First Name" 
-          onChangeText={(First_name) => this.setState({First_name})}
-        value={this.state.First_name}
+          onChangeText={(firstName) => this.setState({firstName})}
+        value={this.state.firstName}
            >
         </TextInput>
          </View>
-         <View style={styles.container1}>
+         <View style={styles.Container1}>
         <Text><b>Last Name:</b> </Text>
-        <TextInput style={styles.input} 
+        <TextInput style={styles.Input} 
           placeholder="Enter Last Name" 
-          onChangeText={(last_name) => this.setState({last_name})}
-        value={this.state.last_name}
+          onChangeText={(lastName) => this.setState({lastName})}
+        value={this.state.lastName}
            >
         </TextInput>
         </View>
         <TouchableOpacity style={styles.buttonContainer} 
         onPress={() => this._onPressButton()}>
-            <Text style={styles.button}>
+            <Text style={styles.Button}>
                 CONFIRM
             </Text>
         </TouchableOpacity>
@@ -101,17 +97,17 @@ export default class ChangeName extends Component {
   }
 }
 const styles = StyleSheet.create({
-  main:{
-    flex:1
-  },
-  container1 : {
-    marginTop:30,
-    alignSelf:'center',
-    flexDirection: 'row',
+Main:{
+  flex:1
+},
+Container1 : {
+  marginTop:30,
+  alignSelf:'center',
+  flexDirection: 'row',
    
 
-  },
-input: {
+},
+Input: {
   borderWidth:2,
   Height:30,
   width:150,
@@ -126,9 +122,9 @@ buttonContainer: {
   marginTop: 5,
   borderRadius: 15,
   marginLeft: 5
- },button:{
-  //position: 'relative',
-    bottom:0,
-    textAlign: 'center',
+ },
+Button:{
+  bottom:0,
+  textAlign: 'center',
     
 }})

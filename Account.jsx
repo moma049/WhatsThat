@@ -1,5 +1,6 @@
 import { Text, View, TextInput,Image,StyleSheet,TouchableOpacity} from 'react-native'
 import React, { Component } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default class Account extends Component {
@@ -8,29 +9,41 @@ export default class Account extends Component {
 
     this.state = {
       
-      id: 8,
-      url: "http://127.0.0.1:3333/api/1.0.0/user/",
-      First_name:  "",
-      last_name: "",
-      email: "",
-      photo: null,
-      isLoading: true
+      
+      Url: "http://127.0.0.1:3333/api/1.0.0/user/",
+      firstName:  "",
+      lastName: "",
+      Email: "",
+      Photo: null,
+      isLoading: true,
     }
   }
   componentWillMount(){
-    console.log(this.state.url + this.state.id)
     this.fetchData();
    
   }
-  componentDidMount(){
-    this.getPicture();
+
+  componentDidMount = () => { 
+   
+    this.myTime = setInterval(()=>{
+      this.fetchData();
+      this.getPicture();
+      
+    }, 5000)
   }
 
-logout(){
+  componentWillUnmount = () =>{
+    clearInterval(this.myTime);
+  }
+
+logout=async() =>{
+  const sesh_token = await AsyncStorage.getItem('@session_token')
+
+
   return fetch("http://127.0.0.1:3333/api/1.0.0/logout",{
     method: 'POST',
     headers: {
-       'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310'
+       'X-Authorization': sesh_token
     }
     
 })
@@ -45,48 +58,47 @@ logout(){
 })
 .then(async(json) => {
   console.log(json)
-  this.setState({First_name: json.first_name})
-  this.setState({last_name: json.last_name})
+  this.setState({firstName: json.first_name})
+  this.setState({lastName: json.last_name})
   this.setState({email: json.email})
 })
 }
   
 fetchData = async () => {
-  const url1 = this.state.url + this.state.id
-  return fetch(url1,{
+  const sesh_token = await AsyncStorage.getItem('@session_token')
+  const Id = await AsyncStorage.getItem('@session_id')
+
+  const Url1 = this.state.Url + Id
+  return fetch(Url1,{
       method: 'GET',
       headers: {
-         'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310'
+         'X-Authorization': sesh_token
       }
       
   })
   .then((response) => {
     if(response.status === 200){
       return response.json()
-    }else if(response.status === 400){
-      throw 'Invalid email or password';
     }else{
-      throw 'Something went wrong';
+      console.log(response)
+      alert("Could not get data");
   }
   })
   .then(async(json) => {
-    console.log(json)
-    this.setState({First_name: json.first_name})
-    this.setState({last_name: json.last_name})
-    this.setState({email: json.email})
+    this.setState({firstName: json.first_name})
+    this.setState({lastName: json.last_name})
+    this.setState({Email: json.email})
 })
 }
-changeEmail(){
 
-}
-changeName(){
-  
-}
-getPicture(){
-  fetch("http://localhost:3333/api/1.0.0/user/" + this.state.id + "/photo", {
+getPicture = async()=>{
+  const sesh_token = await AsyncStorage.getItem('@session_token')
+  const Id = await AsyncStorage.getItem('@session_id')
+
+  fetch("http://localhost:3333/api/1.0.0/user/" + Id + "/photo", {
             method: "GET",
             headers: {
-                "X-Authorization": "a21764cda61efb6f144e9b29f4a89310"
+                "X-Authorization": sesh_token
             }
         })
         .then((res) => {
@@ -96,7 +108,7 @@ getPicture(){
             let data = URL.createObjectURL(resBlob);
 
             this.setState({
-                photo: data,
+                Photo: data,
                 isLoading: false
             })
         })
@@ -108,46 +120,45 @@ getPicture(){
 
 
 
-
   render() {
     const data = {
-      id: this.state.id,
-      first_name: this.state.first_name,
-      last_name: this.state.last_name,
-      email:this.state.email
+      Id: this.state.Id,
+      firstName: this.state.firstName,
+      lastName: this.state.lastName,
+      Email:this.state.Email
     }
     return (
 
       <View>
-        <Image source={{ uri: this.state.photo}}
-        style={styles.logo} />
-        <Text style={styles.text} ><b>ID:</b> {this.state.id} </Text>
+        <Image source={{ uri: this.state.Photo}}
+        style={styles.Logo} />
+        <Text style={styles.Text} ><b>ID:</b> {this.state.Id} </Text>
         
     
-        <Text style={styles.text}><b>First Name: </b> {this.state.First_name}</Text>
+        <Text style={styles.Text}><b>First Name: </b> {this.state.firstName}</Text>
         
-        <Text style={styles.text}><b>Last Name: </b>{this.state.last_name} </Text>
+        <Text style={styles.Text}><b>Last Name: </b>{this.state.lastName} </Text>
         
-        <Text style={styles.text}><b>Email: </b>{this.state.email} </Text>
+        <Text style={styles.Text}><b>Email: </b>{this.state.Email} </Text>
        
-        <View style={styles.managebuttons}>
+        <View style={styles.manageButtons}>
         <TouchableOpacity style={styles.buttonContainer} 
         onPress={() => this.props.navigation.navigate('Password', {data})}>
-            <Text style={styles.button}>
+            <Text style={styles.Button}>
                 Change Password 
             </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttonContainer} 
         onPress={() => this.props.navigation.navigate('Email', {data})}>
-            <Text style={styles.button}>
+            <Text style={styles.Button}>
                 Change Email
             </Text>
         </TouchableOpacity>
         </View>
-        <View style={styles.managebuttons}>
+        <View style={styles.manageButtons}>
         <TouchableOpacity style={styles.buttonContainer} 
         onPress={() => this.props.navigation.navigate('Name', {data})}>
-            <Text style={styles.button}>
+            <Text style={styles.Button}>
                 Change Name 
             </Text>
         </TouchableOpacity>
@@ -155,7 +166,7 @@ getPicture(){
         <TouchableOpacity style={styles.buttonContainer} 
         
         onPress={() => this.props.navigation.navigate('Camera', {data})}>
-            <Text style={styles.button}>
+            <Text style={styles.Button}>
                 Change Picture
             </Text>
         </TouchableOpacity>
@@ -163,7 +174,7 @@ getPicture(){
         <View>
         <TouchableOpacity style={styles.buttonContainer} 
         onPress={() => logout()}>
-            <Text style={styles.button}>
+            <Text style={styles.Button}>
                 Logout 
             </Text>
         </TouchableOpacity>
@@ -176,14 +187,14 @@ getPicture(){
 }
 const styles = StyleSheet.create({
   
-  logo:{
+Logo:{
   alignSelf:'center',
-   marginTop: 12,
-   width: 100, 
-   height: 100,
+  marginTop: 12,
+  width: 100, 
+  height: 100,
 
 },
-text:{
+Text:{
   alignSelf: 'center',
   fontSize: 20
 
@@ -199,12 +210,11 @@ buttonContainer: {
   borderRadius: 15,
   marginLeft: 5
  },
- managebuttons:{
+ manageButtons:{
   flexDirection: 'row',
   alignSelf: 'center'
  },
- button:{
-  //position: 'relative',
+ Button:{
     bottom:0,
     textAlign: 'center',
     

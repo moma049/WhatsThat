@@ -2,6 +2,7 @@ import { Text, View,TextInput,Picker,StyleSheet,TouchableOpacity,FlatList} from 
 import React, { Component } from 'react'
 import { SelectList } from 'react-native-dropdown-select-list'
 import DropDownPicker from 'react-native-dropdown-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default class Search extends Component {
   constructor(props){
@@ -9,16 +10,14 @@ export default class Search extends Component {
 
     this.state = {
       
-      url: "http://127.0.0.1:3333/api/1.0.0/search?q=",
-      endurl:"&offset=0",
+      Url: "http://127.0.0.1:3333/api/1.0.0/search?q=",
+      endUrl:"&offset=0",
       filterURL: "&search_in=",
-      First_name:  "",
-      last_name: "",
-      email: "",
-      search: '',
-      data1: [],
-   
-
+      firstName:  "",
+      lastName: "",
+      Email: "",
+      Search: '',
+      Data1: [],
       open: false,
       value: null,
       items: [{label: 'My Contacts', value: 'contacts' },{label:'All Users', value:'all'}]
@@ -50,32 +49,31 @@ export default class Search extends Component {
   }
 
   fetchData = async () => {
-    const url1 = this.state.url + this.state.search + this.state.filterURL + this.state.value
+    const sesh_token = await AsyncStorage.getItem('@session_token')
+   
+    const url1 = this.state.Url + this.state.Search + this.state.filterURL + this.state.value
     console.log(url1)
     return fetch(url1,{
         method: 'GET',
         headers: {
-           'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310'
+           'X-Authorization':sesh_token
         }
         
     })
     .then((response) => {
       if(response.status === 200){
         return response.json()
-      }else if(response.status === 400){
-        throw 'Invalid email or password';
       }else{
-        throw 'Something went wrong';
+        alert('Please try again later');
     }
     })
     .then(async(json) => {
-      console.log(json)
-      this.setState({data1: json})
+      this.setState({Data1: json})
   })
   }
 
   OnPressButton(){
-    if(!(this.state.search)){
+    if(!(this.state.Search)){
       alert("Must enter search")
       return;
   }
@@ -87,16 +85,16 @@ this.fetchData()
 this.render()
   }
   render() {    
-     const { open, value, items } = this.state;
+     const { open: open, value: value, items: items } = this.state;
     return (
       
       <View>
   
        <TextInput 
         placeholder= "Search"
-        onChangeText={(search) => this.setState({search})}
-        value= {this.state.search}
-        style={styles.searchinput}
+        onChangeText={(Search) => this.setState({Search})}
+        value= {this.state.Search}
+        style={styles.searchInput}
         />
      
         <View>
@@ -110,21 +108,18 @@ this.render()
       />
       <TouchableOpacity style={styles.buttonContainer} 
         onPress={() => this.OnPressButton()}>
-            <Text style={styles.button}>
+            <Text style={styles.Button}>
                 SEARCH
             </Text>
         </TouchableOpacity>
 
-
-        <FlatList data ={this.state.data1} 
+        <FlatList data ={this.state.Data1} 
         keyExtractor={item =>item.user_id }
         renderItem={({item})=>
-        <View style={styles.text1}>
+        <View style={styles.Text1}>
 
           <Text > {<b>ID: </b>}{item.user_id}{"\n"} {<b>Name:</b>} {item.given_name} {item.family_name} {"\n"} {<b>Email:</b>} {item.email}</Text> 
-          
-          
-          
+  
           </View>
         }/>
         </View>
@@ -137,15 +132,12 @@ this.render()
   }
 }
 const styles = StyleSheet.create({
-  
-  drop:{
+Drop:{
   alignSelf: 'center',
-   width: 400, 
-   height: 50,
-
+  width: 400, 
+  height: 50,
 },
-searchinput: {
-  //borderBottomWidth:1,
+searchInput: {
   borderWidth:1,
   height: 50,
   paddingLeft:20,
@@ -157,14 +149,14 @@ searchinput: {
 buttonContainer: {
   backgroundColor: 'red',
   paddingVertical: 15,
- },
- button:{
+},
+Button:{
   textAlign: 'center',
   fontWeight: 500,
   color: 'black'
 
- },
- text1:{
+},
+Text1:{
   textAlign:'center',
   borderBottomWidth: 5
 },

@@ -1,19 +1,16 @@
 import { Text, View,FlatList,TextInput,StyleSheet,TouchableOpacity, ScrollView } from 'react-native'
 import React, { Component } from 'react'
 import { NavigationEvents } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default class messages extends Component {
   constructor(props) {
     super(props);
   this.state = {
-   item: this.props.route.params.item.chat_id,
-  
-    sendmsg: "",
-    editedmsg: "",
-    url: "http://127.0.0.1:3333/api/1.0.0/chat/",
-  
-    
-   
+    item: this.props.route.params.item.chat_id,
+    sendMsg: "",
+    editedMsg: "",
+    Url: "http://127.0.0.1:3333/api/1.0.0/chat/",
   };
   this.fetchData = this.fetchData.bind(this)
 }
@@ -21,51 +18,59 @@ export default class messages extends Component {
  componentWillMount(){
   this.fetchData();
  
-    console.log("Hiiiii" + this.state.item)
-    this.fetchData();
 
 }
-componentDidMount(){
-  this.focusListener = this.props.navigation.addListener('didFocus', () => {
+
+componentDidMount = () => {
+  this.myTime = setInterval(()=>{
     this.fetchData();
-    this.render()
-   
-  });
+    
+  }, 1000)
 }
+
+componentWillUnmount = () =>{
+  clearInterval(this.myTime);
+}
+
+
 fetchData = async () => {
-  const fullURL = this.state.url + this.state.item
+  const sesh_token = await AsyncStorage.getItem('@session_token')
+ 
+
+  const fullURL = this.state.Url + this.state.item
   return fetch(fullURL,{
-      method: 'GET',
-      headers: {
+    method: 'GET',
+    headers: {
           
-          'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310'
-      }
-      
+          'X-Authorization': sesh_token
+    }
   })
   .then((response) => {
     if(response.status === 200){
       return response.json()
-    }else if(response.status === 400){
-      throw 'Invalid email or password';
-    }else{
-      throw 'Something went wrong';
+    }
+    else{alert("messages could not be found");
+     
   }
   })
   .then(async(json) => {
-    console.log(json),
     this.setState({data1: json.messages})
 })
 }
-send(){
+
+
+send = async()=>{
+  const sesh_token = await AsyncStorage.getItem('@session_token')
+  
   let to_send = {
-    message: this.state.sendmsg,
+    message: this.state.sendMsg,
     
     };
-    const fullURL = this.state.url + this.state.item + "/message"
+    const fullURL = this.state.Url + this.state.item + "/message"
   return fetch(fullURL,{
     method: 'POST',
     headers: {
-       'X-Authorization': 'a21764cda61efb6f144e9b29f4a89310',
+       'X-Authorization': sesh_token,
        'Content-Type': 'application/json'
     },
     body: JSON.stringify(to_send)
@@ -73,11 +78,8 @@ send(){
 })
 .then((response) => {
   if(response.status === 200){
-    return response
-  }else if(response.status === 401){
-    throw 'Unauthorised';
   }else{
-    throw 'Something went wrong';
+    alert("Message could not be sent")
 }
 })
 .then(async(json) => {
@@ -85,13 +87,14 @@ send(){
   this.fetchData();
 })
 }
+
+
 longPress(item){
- 
     const obj = {
       item : item,
       chat_id: this.state.item
     }
-    this.props.navigation.navigate('options', {obj})
+    this.props.navigation.navigate( 'options', {obj})
    
 }
   render() {
@@ -101,13 +104,13 @@ longPress(item){
 
   <View> 
     <View>
-    <View style={styles.managebuttons} > 
+    <View style={styles.manageButtons} > 
           <TouchableOpacity style={styles.buttonContainer1}  onPress={() => this.props.navigation.navigate('DetailsStack', {screen: 'Details', params: {chat_id}})}><Text style={styles.button1}>Veiw Chat Details </Text></TouchableOpacity>
           <TouchableOpacity style={styles.buttonContainer1}  onPress={() => this.props.navigation.navigate('AddUser', {chat_id})}><Text style={styles.button1}>Add Users  </Text></TouchableOpacity>
           </View>
     </View>
 
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.Container}>
       <FlatList data ={this.state.data1} 
       keyExtractor={item =>item.message_id }
       renderItem={({item})=>   
@@ -115,19 +118,19 @@ longPress(item){
       <View style={styles.messageBox}>
         <TouchableOpacity onLongPress={() => this.longPress(item)}>
 
-          <Text style={styles.name}  >  {item.author.last_name}  </Text> 
+          <Text style={styles.Name}  >  {item.author.last_name}  </Text> 
           <Text style={styles.message} > {item.message}</Text> 
         </TouchableOpacity>
         </View>
       } inverted/>
     </ScrollView>
-      <View style={styles.send}>
+      <View style={styles.Send}>
         <TextInput placeholder= "Type Message"
-        onChangeText={(sendmsg) => this.setState({sendmsg})}
-        value= {this.state.sendmsg}/>
+        onChangeText={(sendMsg) => this.setState({sendMsg})}
+        value= {this.state.sendMsg}/>
         <TouchableOpacity  style={styles.buttonContainer} 
         onPress={() => this.send()}> 
-        <Text style={styles.button}>
+        <Text style={styles.button1}>
                 Send
             </Text>
         </TouchableOpacity>
@@ -141,7 +144,7 @@ longPress(item){
 }
 
 const styles = StyleSheet.create({
-  container: {
+  Container: {
     padding: 20,
   },
   messageBox: {
@@ -150,19 +153,16 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
   },
-  name: {
+  Name: {
     color: 'red',
     fontWeight: "bold",
     marginBottom: 5,
   },
-  message: {
-
-  },
-  time: {
+  Time: {
     alignSelf: "flex-end",
     color: 'grey'
   },
-  send: {
+  Send: {
     margin: 10, 
     height: 30,
     backgroundColor: '#e5e5e5',
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     alignItems: 'center'
   },
-  managebuttons:{
+  manageButtons:{
     flexDirection: 'row',
     alignSelf: 'center'
    },
@@ -193,9 +193,8 @@ const styles = StyleSheet.create({
      marginLeft: 5
     },
     button1:{
-      //position: 'relative',
-        bottom:0,
-        textAlign: 'center',
+      bottom:0,
+      textAlign: 'center',
         
     }
 
