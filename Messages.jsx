@@ -2,6 +2,10 @@ import { Text, View,FlatList,TextInput,StyleSheet,TouchableOpacity, ScrollView }
 import React, { Component } from 'react'
 import { NavigationEvents } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+//import SQlite from 'react-native-sqlite-storage';
+import * as SQlite from 'expo-sqlite'
+
+const db = SQlite.openDatabase('Drafts.db');
 
 export default class messages extends Component {
   constructor(props) {
@@ -17,6 +21,8 @@ export default class messages extends Component {
 
  componentWillMount(){
   this.fetchData();
+  this.createTable();
+  const db = SQlite.openDatabase('Drafts.db');
  
 
 }
@@ -30,6 +36,26 @@ componentDidMount = () => {
 
 componentWillUnmount = () =>{
   clearInterval(this.myTime);
+}
+
+createTable = () => {
+  db.transaction((tx) => {
+      tx.executeSql(
+          "CREATE TABLE IF NOT EXISTS "
+          + "Drafts"
+          + "(ID INTEGER PRIMARY KEY AUTOINCREMENT ,ChatID INTEGER,Message TEXT);"
+      )
+  })
+}
+sendDraft = async(message)=> {
+  console.log("hello")
+  await db.transaction(async (tx) => {
+     await tx.executeSql(
+        "INSERT INTO Drafts (ChatID, Message) VALUES (?,?)",
+        [this.state.item,message]
+    );
+    
+})
 }
 
 
@@ -83,7 +109,6 @@ send = async()=>{
 }
 })
 .then(async(json) => {
-  console.log(json)
   this.fetchData();
 })
 }
@@ -107,6 +132,7 @@ longPress(item){
     <View style={styles.manageButtons} > 
           <TouchableOpacity style={styles.buttonContainer1}  onPress={() => this.props.navigation.navigate('DetailsStack', {screen: 'Details', params: {chat_id}})}><Text style={styles.button1}>Veiw Chat Details </Text></TouchableOpacity>
           <TouchableOpacity style={styles.buttonContainer1}  onPress={() => this.props.navigation.navigate('AddUser', {chat_id})}><Text style={styles.button1}>Add Users  </Text></TouchableOpacity>
+          <TouchableOpacity style={styles.buttonContainer1}  onPress={() => this.props.navigation.navigate('Drafts')}><Text style={styles.button1}>Veiw Drafts  </Text></TouchableOpacity>
           </View>
     </View>
 
@@ -125,16 +151,26 @@ longPress(item){
       } inverted/>
     </ScrollView>
       <View style={styles.Send}>
+        <View style={styles.manageButtons} >
         <TextInput placeholder= "Type Message"
         onChangeText={(sendMsg) => this.setState({sendMsg})}
         value= {this.state.sendMsg}/>
-        <TouchableOpacity  style={styles.buttonContainer} 
+           <TouchableOpacity  style={styles.buttonContainer} 
         onPress={() => this.send()}> 
         <Text style={styles.button1}>
                 Send
             </Text>
         </TouchableOpacity>
+       
+      
+        </View>
       </View>
+      <TouchableOpacity  style={styles.buttonContainer} 
+        onPress={() => this.sendDraft(this.state.sendMsg)}> 
+        <Text style={styles.button1}>
+             Save Draft
+            </Text>
+        </TouchableOpacity> 
     
     </View>
     )
@@ -171,11 +207,12 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     backgroundColor: 'red',
-    width: 50,
+    width: 80,
     height:20,
     marginLeft:150,
     marginTop: 5,
-    alignItems: 'center'
+    alignItems: 'center',
+   
   },
   manageButtons:{
     flexDirection: 'row',

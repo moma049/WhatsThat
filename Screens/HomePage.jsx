@@ -2,6 +2,7 @@ import { Text, View,StyleSheet,Image, TouchableOpacity} from 'react-native'
 import React, { Component } from 'react'
 import appLogo from '../AppLogo'
 
+// This component contails the sign in and sign up buttons
 export default class HomePage extends Component {
   render() {
     return (

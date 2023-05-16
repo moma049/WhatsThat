@@ -7,6 +7,7 @@ import individualMessage from './IndividualMessage'
 import Messages from './Messages'
 import detailStack from './DetailsStack'
 import editStack from './EditStack'
+import Drafts from './Drafts'
 
 
 
@@ -28,6 +29,9 @@ export default class ChatStack extends Component {
         <stack.Screen  
         name='AddUser'
         component={addUser}/>
+         <stack.Screen  
+        name='Drafts'
+        component={Drafts}/>
      </stack.Navigator>
     )
   }

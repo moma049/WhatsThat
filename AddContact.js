@@ -21,6 +21,7 @@ export default class AddContact extends Component {
   }
 
   onPressButton(userId){
+    // get the user id and if the user id is the id that is being added do not allow the operation
     const Id = AsyncStorage.getItem('@session_id')
     if (userId == Id) {
       alert("Cannot add yourself as a contact")
@@ -33,7 +34,7 @@ export default class AddContact extends Component {
   addContact = async(userId)=> {
     const sesh_token = await AsyncStorage.getItem('@session_token')
     
-
+    // add the user to the logged in users list of contacts
   const Url1 = this.state.Url + userId + "/contact"
    return fetch(Url1,{
   method: 'POST',
@@ -64,6 +65,7 @@ export default class AddContact extends Component {
   }
 
 
+// get the deatails of all the users using the search command
 fetchData = async () => {
   const sesh_token = await AsyncStorage.getItem('@session_token')
  
@@ -89,6 +91,7 @@ fetchData = async () => {
     this.setState({Data1: json})
 })
 }
+// render all users with an add contact button which adds then to contacts.
 render() {
     return (
       <View style={styles.Main}>

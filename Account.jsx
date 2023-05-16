@@ -8,8 +8,7 @@ export default class Account extends Component {
     super(props)
 
     this.state = {
-      
-      
+      Id: null,
       Url: "http://127.0.0.1:3333/api/1.0.0/user/",
       firstName:  "",
       lastName: "",
@@ -19,12 +18,14 @@ export default class Account extends Component {
     }
   }
   componentWillMount(){
+    // when the component is being mounted initially call fetch data  
     this.fetchData();
-   
+   this.getID();
   }
 
   componentDidMount = () => { 
-   
+
+   //call fetchdata and get picture every 5 seconds so the page refreshes
     this.myTime = setInterval(()=>{
       this.fetchData();
       this.getPicture();
@@ -37,9 +38,10 @@ export default class Account extends Component {
   }
 
 logout=async() =>{
+  // get the value of the token
   const sesh_token = await AsyncStorage.getItem('@session_token')
 
-
+//logout the user
   return fetch("http://127.0.0.1:3333/api/1.0.0/logout",{
     method: 'POST',
     headers: {
@@ -57,17 +59,16 @@ logout=async() =>{
 }
 })
 .then(async(json) => {
-  console.log(json)
-  this.setState({firstName: json.first_name})
-  this.setState({lastName: json.last_name})
-  this.setState({email: json.email})
+
 })
 }
   
 fetchData = async () => {
+  //get the token and id 
   const sesh_token = await AsyncStorage.getItem('@session_token')
   const Id = await AsyncStorage.getItem('@session_id')
 
+  // get the user account details 
   const Url1 = this.state.Url + Id
   return fetch(Url1,{
       method: 'GET',
@@ -85,6 +86,7 @@ fetchData = async () => {
   }
   })
   .then(async(json) => {
+    // set the account details to state variables 
     this.setState({firstName: json.first_name})
     this.setState({lastName: json.last_name})
     this.setState({Email: json.email})
@@ -94,6 +96,8 @@ fetchData = async () => {
 getPicture = async()=>{
   const sesh_token = await AsyncStorage.getItem('@session_token')
   const Id = await AsyncStorage.getItem('@session_id')
+  
+  // get the picture of the user and store it in a state variable
 
   fetch("http://localhost:3333/api/1.0.0/user/" + Id + "/photo", {
             method: "GET",
@@ -117,18 +121,23 @@ getPicture = async()=>{
         })
   
 }
-
+getID = async()=>{
+  const Id = await AsyncStorage.getItem('@session_id')
+  this.setState({Id:Id})
+}
 
 
   render() {
+    // set data to an object of variables to send to next screen 
     const data = {
       Id: this.state.Id,
       firstName: this.state.firstName,
       lastName: this.state.lastName,
       Email:this.state.Email
     }
+    
     return (
-
+      // show the user data 
       <View>
         <Image source={{ uri: this.state.Photo}}
         style={styles.Logo} />
@@ -142,6 +151,8 @@ getPicture = async()=>{
         <Text style={styles.Text}><b>Email: </b>{this.state.Email} </Text>
        
         <View style={styles.manageButtons}>
+ 
+        
         <TouchableOpacity style={styles.buttonContainer} 
         onPress={() => this.props.navigation.navigate('Password', {data})}>
             <Text style={styles.Button}>

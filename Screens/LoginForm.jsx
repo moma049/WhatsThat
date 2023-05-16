@@ -11,6 +11,7 @@ export default class LoginForm extends Component {
   constructor(props) {
     
     super(props);
+    // define state variables
     this.state = {
     isLoading: true,
     signUpData: [],
@@ -28,18 +29,19 @@ export default class LoginForm extends Component {
     this.setState({submitted: true})
     this.setState({error: ""})
 
+    //if the email and password input is empty alert the user
     if(!(this.state.email && this.state.password)){
         this.setState({error: "Must enter email and password"})
         alert("Must enter email and password")
         return;
     }
-
+    //if the email is not in the correct format alert the user
     if(!EmailValidator.validate(this.state.email)){
         this.setState({error: "Must enter valid email"})
         alert("Must enter valid email")
         return;
     }
-
+    //if the password is not in the correct format alert the user
     const PASSWORD_REGEX = new RegExp("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$")
     if(!PASSWORD_REGEX.test(this.state.password)){
         this.setState({error: "Password isn't strong enough (One upper, one lower, one special, one number, at least 8 characters long)"})
@@ -54,20 +56,23 @@ export default class LoginForm extends Component {
    
 }
 login = async () => {
+  // save the password in async storage 
   await AsyncStorage.setItem('@session_password', this.state.password);
 
   let to_send = {
   email: this.state.email,
   password: this.state.password
   };
-  console.log(to_send)
+
+  // fetch data from the login api
   return fetch("http://127.0.0.1:3333/api/1.0.0/login",{
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
       },
       body: JSON.stringify(to_send)
-  })
+  }) // if the response is 200 return the json of the response
+    // else alert the user
   .then(async (response) => {
     if(response.status === 200){
      return response.json()
@@ -79,12 +84,11 @@ login = async () => {
   }
   })
   .then(async (json) => {
-     
+     //set the token for the session token and the user id 
       await AsyncStorage.setItem('@session_token', json.token);
       await AsyncStorage.setItem('@session_id', json.id);
-      const value = await AsyncStorage.getItem('@session_token');
-      console.log(value)
       
+      // navigate to the main app screen
     this.props.navigation.navigate('MainApp')
 })
 }

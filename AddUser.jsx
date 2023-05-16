@@ -17,9 +17,10 @@ export default class AddUser extends Component {
         this.fetchData();
       }
     
-      addUser = async(userId)=> {
-        const sesh_token = await AsyncStorage.getItem('@session_token')
-        console.log(sesh_token)
+    addUser = async(userId)=> {
+
+      const sesh_token = await AsyncStorage.getItem('@session_token')
+      // add the user to the chat 
       const Url1 = this.state.Url + this.state.chat_id+ "/user/"+ userId
        return fetch(Url1,{
       method: 'POST',
@@ -47,7 +48,7 @@ export default class AddUser extends Component {
     fetchData = async () => {
       const sesh_token = await AsyncStorage.getItem('@session_token')
  
- 
+        // fetch all users to be shown in the flatlist
         return fetch("http://127.0.0.1:3333/api/1.0.0/search",{
             method: 'GET',
             headers: {
